@@ -1,7 +1,7 @@
-const ClientSchema = require("../models/client.js");
+const ClientSchema = require("../../models/dashboard/client.js");
 const path = require("path");
 const bcrypt = require("bcrypt");
-const { uploadFile, delFile } = require("../middlewares/uploadFile.js");
+const { uploadFile, delFile } = require("../../middlewares/uploadFile.js");
 
 require("dotenv").config();
 

@@ -7,16 +7,11 @@ const {
   updateItem,
   deleteItem,
   sortItem,
-} = require("../controls/driver.js");
+} = require("../../controls/dashboard/vehicle.js");
 const fileUpload = require("express-fileupload");
-const { verifyToken } = require("../middlewares/checkAuth.js");
+const { verifyToken } = require("../../middlewares/adminCheckAuth.js");
 
-router.post(
-  "/",
-  verifyToken,
-  fileUpload({ createParentPath: true }),
-  createItem,
-);
+router.post("/", fileUpload({ createParentPath: true }), createItem);
 router.get("/", verifyToken, getItems);
 router.get("/:id", verifyToken, getItem);
 router.put(

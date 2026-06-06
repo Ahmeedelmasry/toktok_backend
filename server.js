@@ -8,11 +8,12 @@ const os = require("os");
 const http = require("http");
 
 // Routes
-const adminAuth = require("./routes/adminAuth");
-const admins = require("./routes/admin");
-const clients = require("./routes/client");
-const drivers = require("./routes/driver");
-const vehicles = require("./routes/vehicle");
+const adminAuth = require("./routes/dashboard/adminAuth");
+const admins = require("./routes/dashboard/admin");
+const clients = require("./routes/dashboard/client");
+const appClients = require("./routes/application/client");
+const drivers = require("./routes/dashboard/driver");
+const vehicles = require("./routes/dashboard/vehicle");
 
 // Set Headers
 app.use((req, res, next) => {
@@ -38,11 +39,15 @@ app.use(express.static("profile_images"));
 app.use(express.static("vehicla_images"));
 
 // Routes
-app.use("/auth", adminAuth);
-app.use("/admins", admins);
-app.use("/clients", clients);
-app.use("/drivers", drivers);
-app.use("/vehicles", vehicles);
+// Dashboard
+app.use("/dashboard/auth", adminAuth);
+app.use("/dashboard/admins", admins);
+app.use("/dashboard/clients", clients);
+app.use("/dashboard/drivers", drivers);
+app.use("/dashboard/vehicles", vehicles);
+
+// Application
+app.use("/user", appClients);
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello world" });

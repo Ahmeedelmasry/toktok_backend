@@ -7,9 +7,9 @@ const {
   updateAdmin,
   deleteAdmin,
   sortItem,
-} = require("../controls/admin.js");
+} = require("../../controls/dashboard/admin.js");
 const fileUpload = require("express-fileupload");
-const { verifyToken } = require("../middlewares/checkAuth.js");
+const { verifyToken } = require("../../middlewares/adminCheckAuth.js");
 
 router.post(
   "/",

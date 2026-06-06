@@ -1,6 +1,7 @@
-const VehicleSchema = require("../models/vehicle.js");
+const DriverSchema = require("../../models/dashboard/driver.js");
 const path = require("path");
-const { uploadFile, delFile } = require("../middlewares/uploadFile.js");
+const bcrypt = require("bcrypt");
+const { uploadFile, delFile } = require("../../middlewares/uploadFile.js");
 
 require("dotenv").config();
 
@@ -30,26 +31,29 @@ const validatCreation = (error, body) => {
 const createItem = async (req, res) => {
   let filepath;
   try {
+    const salt = await bcrypt.genSalt();
+    //Hash The Password
+    const mailBody = { ...req.body };
+    req.body.password = await bcrypt.hash(req.body.password, salt);
     const body = {
       ...req.body,
       createdAt: new Date(),
     };
 
     if (req.files && req.files.file) {
-      filepath = await uploadFile(req, res, "vehicla_images");
-      body.image = `${process.env.SERVER_DOMAIN}/${filepath}`;
+      filepath = await uploadFile(req, res, "avatars");
+      body.avatar = `${process.env.DOMAIN}/${filepath}`;
     }
-    const getLastRecord = await VehicleSchema.find({}).sort({ order: -1 });
+    const getLastRecord = await DriverSchema.find({}).sort({ order: -1 });
 
-
-    const set = await VehicleSchema.create({
+    const set = await DriverSchema.create({
       ...body,
       createdAt: new Date(),
       order: getLastRecord[0] ? getLastRecord[0].order + 1 : 1,
     });
     await set.save();
 
-    return res.status(200).json({ message: "Vehicle Created Successfully" });
+    return res.status(200).json({ message: "Driver Created Successfully" });
   } catch (error) {
     console.log(error);
     const errors = validatCreation(error, req.body);
@@ -59,31 +63,37 @@ const createItem = async (req, res) => {
 
 const updateItem = async (req, res) => {
   try {
-    let item = await VehicleSchema.findOne({ _id: req.params.id });
+    let item = await DriverSchema.findOne({ _id: req.params.id });
     //Hash The Password
     if (!item) {
-      return res.status(404).json({ message: "Vehicle not found" });
+      return res.status(404).json({ message: "Driver not found" });
     }
     const body = {
       ...req.body,
     };
+    if (body.password) {
+      const salt = await bcrypt.genSalt();
+
+      //Hash The Password
+      body.password = await bcrypt.hash(body.password, salt);
+    }
 
     // Check If there is an image file uploaded
     let filepath;
 
     if (req.files && req.files.file) {
-      filepath = await uploadFile(req, res, "vehicla_images");
-      body.image = `${process.env.SERVER_DOMAIN}/${filepath}`;
+      filepath = await uploadFile(req, res, "avatars");
+      body.avatar = `${process.env.DOMAIN}/${filepath}`;
     }
 
-    await VehicleSchema.updateOne({ _id: req.params.id }, body);
+    await DriverSchema.updateOne({ _id: req.params.id }, body);
 
-    const VehicleData = {
+    const DriverData = {
       _id: req.params.id,
       ...body,
     };
 
-    return res.status(200).json({ message: "Vehicle updated successfully" });
+    return res.status(200).json({ message: "Driver updated successfully" });
   } catch (error) {
     const errors = validatCreation(error, req.body);
     res.status(400).json({ errors: errors.errors, message: errors.message });
@@ -92,25 +102,25 @@ const updateItem = async (req, res) => {
 
 const deleteItem = async (req, res) => {
   try {
-    await VehicleSchema.deleteOne({ _id: req.params.id });
-    res.status(200).json({ message: "Vehicle Deleted Successfully" });
+    await DriverSchema.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Driver Deleted Successfully" });
   } catch (error) {
-    res.status(404).json({ message: "Vehicle not found" });
+    res.status(404).json({ message: "Driver not found" });
   }
 };
 
-// Get Vehicle
+// Get Driver
 const getItem = async (req, res) => {
   try {
-    const result = await VehicleSchema.findById(req.params.id);
-    if (!result) return res.status(404).json({ message: "Vehicle not found" });
+    const result = await DriverSchema.findById(req.params.id);
+    if (!result) return res.status(404).json({ message: "Driver not found" });
     res.status(200).json(result);
   } catch (error) {
-    res.status(404).json({ message: "Vehicle not found" });
+    res.status(404).json({ message: "Driver not found" });
   }
 };
 
-// Get Vehicle
+// Get Driver
 const getItems = async (req, res) => {
   try {
     let query = {};
@@ -134,11 +144,15 @@ const getItems = async (req, res) => {
     const options = {
       page: Number(page),
       limit: Number(limit),
-      select: `name image isActive createdAt order`,
+      select: `name email phone vehicleType isActive createdAt order`,
       sort: { order: 1 },
+      populate: {
+        path: "vehicleType",
+        select: "name image createdAt",
+      },
     };
 
-    const result = await VehicleSchema.paginate(query, options);
+    const result = await DriverSchema.paginate(query, options);
 
     res.status(200).json(result);
   } catch (error) {
@@ -149,12 +163,12 @@ const getItems = async (req, res) => {
 const sortItem = async (req, res) => {
   try {
     // Find the current record
-    const currentRecord = await VehicleSchema.findOne({ _id: req.params.id });
+    const currentRecord = await DriverSchema.findOne({ _id: req.params.id });
     if (!currentRecord) {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    const aboveRecord = await VehicleSchema.findOne({
+    const aboveRecord = await DriverSchema.findOne({
       order:
         Number(req.params.order_type) > 0
           ? { $gt: Number(currentRecord.order) }
@@ -166,12 +180,12 @@ const sortItem = async (req, res) => {
     }
 
     // Swap the `order` values of the two records
-    await VehicleSchema.updateOne(
+    await DriverSchema.updateOne(
       { _id: currentRecord._id },
       { $set: { order: aboveRecord.order } },
     );
 
-    await VehicleSchema.updateOne(
+    await DriverSchema.updateOne(
       { _id: aboveRecord._id },
       { $set: { order: currentRecord.order } },
     );

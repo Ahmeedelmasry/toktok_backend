@@ -1,9 +1,10 @@
-const DriverSchema = require("../models/driver.js");
+const AdminSchema = require("../../models/dashboard/admin.js");
 const path = require("path");
 const bcrypt = require("bcrypt");
-const { uploadFile, delFile } = require("../middlewares/uploadFile.js");
+const { uploadFile, delFile } = require("../../middlewares/uploadFile.js");
 
 require("dotenv").config();
+const { generToken } = require("./adminAuth.js");
 
 // Creation Validator
 const validatCreation = (error, body) => {
@@ -27,8 +28,8 @@ const validatCreation = (error, body) => {
   };
 };
 
-// Create Item
-const createItem = async (req, res) => {
+// Create Admin
+const createAdmin = async (req, res) => {
   let filepath;
   try {
     const salt = await bcrypt.genSalt();
@@ -44,16 +45,16 @@ const createItem = async (req, res) => {
       filepath = await uploadFile(req, res, "avatars");
       body.avatar = `${process.env.DOMAIN}/${filepath}`;
     }
-    const getLastRecord = await DriverSchema.find({}).sort({ order: -1 });
+    const getLastRecord = await AdminSchema.find({}).sort({ order: -1 });
 
-    const set = await DriverSchema.create({
+    const set = await AdminSchema.create({
       ...body,
       createdAt: new Date(),
       order: getLastRecord[0] ? getLastRecord[0].order + 1 : 1,
     });
     await set.save();
 
-    return res.status(200).json({ message: "Driver Created Successfully" });
+    return res.status(200).json({ message: "Admin Created Successfully" });
   } catch (error) {
     console.log(error);
     const errors = validatCreation(error, req.body);
@@ -61,12 +62,12 @@ const createItem = async (req, res) => {
   }
 };
 
-const updateItem = async (req, res) => {
+const updateAdmin = async (req, res) => {
   try {
-    let item = await DriverSchema.findOne({ _id: req.params.id });
+    let admin = await AdminSchema.findOne({ _id: req.params.id });
     //Hash The Password
-    if (!item) {
-      return res.status(404).json({ message: "Driver not found" });
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
     }
     const body = {
       ...req.body,
@@ -86,42 +87,46 @@ const updateItem = async (req, res) => {
       body.avatar = `${process.env.DOMAIN}/${filepath}`;
     }
 
-    await DriverSchema.updateOne({ _id: req.params.id }, body);
+    await AdminSchema.updateOne({ _id: req.params.id }, body);
 
-    const DriverData = {
+    const adminData = {
       _id: req.params.id,
       ...body,
     };
 
-    return res.status(200).json({ message: "Driver updated successfully" });
+    const cookie = generToken(adminData);
+
+    return res
+      .status(200)
+      .json({ token: cookie, message: "Admin updated successfully" });
   } catch (error) {
     const errors = validatCreation(error, req.body);
     res.status(400).json({ errors: errors.errors, message: errors.message });
   }
 };
 
-const deleteItem = async (req, res) => {
+const deleteAdmin = async (req, res) => {
   try {
-    await DriverSchema.deleteOne({ _id: req.params.id });
-    res.status(200).json({ message: "Driver Deleted Successfully" });
+    await AdminSchema.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Admin Deleted Successfully" });
   } catch (error) {
-    res.status(404).json({ message: "Driver not found" });
+    res.status(404).json({ message: "Admin not found" });
   }
 };
 
-// Get Driver
-const getItem = async (req, res) => {
+// Get Admin
+const getAdmin = async (req, res) => {
   try {
-    const result = await DriverSchema.findById(req.params.id);
-    if (!result) return res.status(404).json({ message: "Driver not found" });
+    const result = await AdminSchema.findById(req.params.id);
+    if (!result) return res.status(404).json({ message: "Admin not found" });
     res.status(200).json(result);
   } catch (error) {
-    res.status(404).json({ message: "Driver not found" });
+    res.status(404).json({ message: "Admin not found" });
   }
 };
 
-// Get Driver
-const getItems = async (req, res) => {
+// Get Admin
+const getAdmins = async (req, res) => {
   try {
     let query = {};
 
@@ -144,15 +149,42 @@ const getItems = async (req, res) => {
     const options = {
       page: Number(page),
       limit: Number(limit),
-      select: `name email phone vehicleType isActive createdAt order`,
+      select: `userName email isActive createdAt order`,
       sort: { order: 1 },
-      populate: {
-        path: "vehicleType",
-        select: "name image createdAt",
-      },
     };
 
-    const result = await DriverSchema.paginate(query, options);
+    const result = await AdminSchema.paginate(query, options);
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json({ error: error });
+  }
+};
+
+const getClients = async (req, res) => {
+  try {
+    let query = {};
+
+    const { searchWord, page = 1, limit = 10 } = req.query;
+
+    if (searchWord) {
+      query = {
+        $or: [
+          { userName: { $regex: searchWord, $options: "i" } },
+          { email: { $regex: searchWord, $options: "i" } },
+        ],
+      };
+    }
+
+    query.isAdmin = false;
+
+    const options = {
+      page: Number(page),
+      limit: Number(limit),
+      select: `userName email isActive isAdmin createdAt`,
+    };
+
+    const result = await AdminSchema.paginate(query, options);
 
     res.status(200).json(result);
   } catch (error) {
@@ -163,12 +195,12 @@ const getItems = async (req, res) => {
 const sortItem = async (req, res) => {
   try {
     // Find the current record
-    const currentRecord = await DriverSchema.findOne({ _id: req.params.id });
+    const currentRecord = await AdminSchema.findOne({ _id: req.params.id });
     if (!currentRecord) {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    const aboveRecord = await DriverSchema.findOne({
+    const aboveRecord = await AdminSchema.findOne({
       order:
         Number(req.params.order_type) > 0
           ? { $gt: Number(currentRecord.order) }
@@ -180,12 +212,12 @@ const sortItem = async (req, res) => {
     }
 
     // Swap the `order` values of the two records
-    await DriverSchema.updateOne(
+    await AdminSchema.updateOne(
       { _id: currentRecord._id },
       { $set: { order: aboveRecord.order } },
     );
 
-    await DriverSchema.updateOne(
+    await AdminSchema.updateOne(
       { _id: aboveRecord._id },
       { $set: { order: currentRecord.order } },
     );
@@ -198,10 +230,11 @@ const sortItem = async (req, res) => {
 };
 
 module.exports = {
-  createItem,
-  getItem,
-  getItems,
-  updateItem,
-  deleteItem,
+  createAdmin,
+  getAdmin,
+  getAdmins,
+  updateAdmin,
+  deleteAdmin,
+  getClients,
   sortItem,
 };
