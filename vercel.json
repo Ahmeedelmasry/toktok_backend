@@ -1,0 +1,15 @@
+{
+  "version": "2",
+  "builds": [
+    {
+      "src": "apiindex.js",
+      "use": "@vercelnode"
+    }
+  ],
+  "routes": [
+    {
+      "src": "(.)",
+      "dest": "apiindex.js"
+    }
+  ]
+}
