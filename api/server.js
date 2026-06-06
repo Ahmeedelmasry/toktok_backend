@@ -8,12 +8,12 @@ const os = require("os");
 const http = require("http");
 
 // Routes
-const adminAuth = require("./routes/dashboard/adminAuth");
-const admins = require("./routes/dashboard/admin");
-const clients = require("./routes/dashboard/client");
-const appClients = require("./routes/application/client");
-const drivers = require("./routes/dashboard/driver");
-const vehicles = require("./routes/dashboard/vehicle");
+const adminAuth = require("../routes/dashboard/adminAuth");
+const admins = require("../routes/dashboard/admin");
+const clients = require("../routes/dashboard/client");
+const appClients = require("../routes/application/client");
+const drivers = require("../routes/dashboard/driver");
+const vehicles = require("../routes/dashboard/vehicle");
 
 // Set Headers
 app.use((req, res, next) => {
