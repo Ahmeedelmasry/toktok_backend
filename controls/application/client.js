@@ -41,6 +41,12 @@ const generToken = (data) => {
 const signUp = async (req, res) => {
   let filepath;
   try {
+    if (!req.body.password) {
+      return res.status(400).json({
+        errors: { password: "Password required" },
+        message: "Password required",
+      });
+    }
     const salt = await bcrypt.genSalt();
 
     //Hash The Password
@@ -74,7 +80,6 @@ const signUp = async (req, res) => {
 
     return res.status(200).json({ token: cookie });
   } catch (error) {
-    console.log(error);
     const errors = validatCreation(error, req.body);
     res.status(400).json({ errors: errors.errors, message: errors.message });
   }

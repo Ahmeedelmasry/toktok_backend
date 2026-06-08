@@ -31,6 +31,12 @@ const validatCreation = (error, body) => {
 const createItem = async (req, res) => {
   let filepath;
   try {
+    if (!req.body.password) {
+      return res.status(400).json({
+        errors: { password: "Password required" },
+        message: "Password required",
+      });
+    }
     const salt = await bcrypt.genSalt();
     //Hash The Password
     const mailBody = { ...req.body };
