@@ -12,6 +12,7 @@ const adminAuth = require("./routes/dashboard/adminAuth");
 const admins = require("./routes/dashboard/admin");
 const clients = require("./routes/dashboard/client");
 const appClients = require("./routes/application/client");
+const appDrivers = require("./routes/application/driver");
 const drivers = require("./routes/dashboard/driver");
 const vehicles = require("./routes/dashboard/vehicle");
 
@@ -48,6 +49,7 @@ app.use("/dashboard/vehicles", vehicles);
 
 // Application
 app.use("/user", appClients);
+app.use("/driver", appDrivers);
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello world" });
