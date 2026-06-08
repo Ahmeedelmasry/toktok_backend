@@ -11,9 +11,14 @@ const {
 const fileUpload = require("express-fileupload");
 const { verifyToken } = require("../../middlewares/adminCheckAuth.js");
 
-router.post("/", fileUpload({ createParentPath: true }), createItem);
-router.get("/", verifyToken, getItems);
-router.get("/:id", verifyToken, getItem);
+router.post(
+  "/",
+  verifyToken,
+  fileUpload({ createParentPath: true }),
+  createItem,
+);
+router.get("/", getItems);
+router.get("/:id", getItem);
 router.put(
   "/:id",
   verifyToken,
