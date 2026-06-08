@@ -64,8 +64,8 @@ mongoose
   .set("strictQuery", true)
   .connect(process.env.DB_URI)
   .then(() => {
-    httpServer.listen(process.env.PORT, () => {
-      console.log(`Listining at port ${process.env.PORT || 4000}`);
+    httpServer.listen(PORT, "0.0.0.0", () => {
+      console.log(`Listening on port ${PORT}`);
     });
   })
   .catch((err) => console.log(err));
