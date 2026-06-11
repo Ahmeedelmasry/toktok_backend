@@ -11,7 +11,7 @@ const fileUpload = require("express-fileupload");
 const { verifyToken } = require("../../middlewares/appCheckAuth.js");
 
 router.post("/", verifyToken, createItem);
-router.get("/", verifyToken, getItems);
+router.get("/all/:userId", verifyToken, getItems);
 router.get("/:id", verifyToken, getItem);
 router.put("/:id", verifyToken, updateItem);
 router.delete("/:id", verifyToken, deleteItem);

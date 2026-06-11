@@ -70,16 +70,18 @@ const signUp = async (req, res) => {
     });
     const user = await set.save();
 
-    const cookie = generToken({
+    const userData = {
       name: user.name,
       email: user.email,
       phone: user.phone,
       isActive: user.isActive,
       createdAt: user.createdAt,
       _id: user._id,
-    });
+    };
 
-    return res.status(200).json({ token: cookie });
+    const cookie = generToken(userData);
+
+    return res.status(200).json({ token: cookie, data: userData });
   } catch (error) {
     console.log(error);
     const errors = validatCreation(error, req.body);
@@ -106,16 +108,18 @@ const doLogin = async (req, res) => {
       return res.status(415).json({ message: "Invalid email or password" });
     }
 
-    const cookie = generToken({
+    const userData = {
       name: user.name,
       email: user.email,
       phone: user.phone,
       isActive: user.isActive,
       createdAt: user.createdAt,
       _id: user._id,
-    });
+    };
 
-    return res.status(200).json({ token: cookie });
+    const cookie = generToken(userData);
+
+    return res.status(200).json({ token: cookie, data: userData });
   } catch (error) {
     console.log(error);
     return res.status(500).json(error);
@@ -155,7 +159,22 @@ const updateItem = async (req, res) => {
       ...body,
     };
 
-    return res.status(200).json({ message: "Client updated successfully" });
+    const userData = {
+      name: clientData.name,
+      email: clientData.email,
+      phone: clientData.phone,
+      isActive: clientData.isActive,
+      createdAt: clientData.createdAt,
+      _id: clientData._id,
+    };
+
+    const cookie = generToken(userData);
+
+    return res.status(200).json({
+      message: "Driver updated successfully",
+      token: cookie,
+      data: userData,
+    });
   } catch (error) {
     const errors = validatCreation(error, req.body);
     res.status(400).json({ errors: errors.errors, message: errors.message });
@@ -165,7 +184,9 @@ const updateItem = async (req, res) => {
 // Get Client
 const getItem = async (req, res) => {
   try {
-    const result = await DriverSchema.findById(req.params.id);
+    const result = await DriverSchema.findById(req.params.id).select(
+      "-password -__v",
+    );
     if (!result) return res.status(404).json({ message: "Client not found" });
     res.status(200).json(result);
   } catch (error) {

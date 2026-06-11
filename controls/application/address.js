@@ -1,4 +1,6 @@
 const AddressSchema = require("../../models/application/address.js");
+const ClientSchema = require("../../models/dashboard/client.js");
+const DriverSchema = require("../../models/dashboard/driver.js");
 
 // Creation Validator
 const validatCreation = (error, body) => {
@@ -85,6 +87,13 @@ const getItem = async (req, res) => {
 
 const getItems = async (req, res) => {
   try {
+    // Check if user exists
+    let driver = await DriverSchema.findById(req.params.userId);
+    let client = await ClientSchema.findById(req.params.userId);
+
+    if (!client && !driver)
+      return res.status(404).json({ error: "User not found" });
+
     let query = {};
 
     const { searchWord, page = 1, limit = 10 } = req.query;
@@ -96,6 +105,12 @@ const getItems = async (req, res) => {
           { email: { $regex: searchWord, $options: "i" } },
         ],
       };
+    }
+
+    if (driver) {
+      query.driverId = driver._id;
+    } else {
+      query.clientId = client._id;
     }
 
     const options = {

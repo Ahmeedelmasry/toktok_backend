@@ -44,6 +44,11 @@ const ClientSchema = new mongoose.Schema({
     default: 0,
   },
 
+  avatar: {
+    type: String,
+    default: "",
+  },
+
   createdAt: {
     type: String,
     default: "",
