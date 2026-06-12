@@ -42,6 +42,7 @@ app.use(cookieParser());
 // Public Files
 app.use(express.static("profile_images"));
 app.use(express.static("vehicla_images"));
+app.use(express.static("avatars"));
 
 // Routes
 // Dashboard
