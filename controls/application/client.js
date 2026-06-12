@@ -62,7 +62,7 @@ const signUp = async (req, res) => {
     const user = await set.save();
 
     const userData = {
-      avatar: clientData.avatar,
+      avatar: user.avatar,
       name: user.name,
       email: user.email,
       phone: user.phone,
@@ -100,7 +100,7 @@ const doLogin = async (req, res) => {
     }
 
     const userData = {
-      avatar: clientData.avatar,
+      avatar: user.avatar,
       name: user.name,
       email: user.email,
       phone: user.phone,

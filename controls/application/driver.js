@@ -68,7 +68,7 @@ const signUp = async (req, res) => {
       phone: user.phone,
       isActive: user.isActive,
       createdAt: user.createdAt,
-      avatar: clientData.avatar,
+      avatar: user.avatar,
       _id: user._id,
     };
 
@@ -107,7 +107,7 @@ const doLogin = async (req, res) => {
       phone: user.phone,
       isActive: user.isActive,
       createdAt: user.createdAt,
-      avatar: clientData.avatar,
+      avatar: user.avatar,
       _id: user._id,
     };
 
