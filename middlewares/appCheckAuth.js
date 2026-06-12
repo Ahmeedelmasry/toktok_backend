@@ -7,7 +7,7 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ message: "Please login to your account" });
   }
 
-  jwt.verify(token, "Above App", (err, decoded) => {
+  jwt.verify(token, "Toktok App", (err, decoded) => {
     if (err) {
       return res
         .status(403)

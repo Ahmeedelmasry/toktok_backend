@@ -1,15 +1,9 @@
 const AdminSchema = require("../../models/dashboard/admin");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { generToken } = require("../../middlewares/generateToken");
 
 const maxAge = 60 * 60 * 24;
-
-//Generating Token
-const generToken = (data) => {
-  return jwt.sign({ data }, "Above App", {
-    expiresIn: maxAge,
-  });
-};
 
 const doLogin = async (req, res) => {
   console.log("Before Try");

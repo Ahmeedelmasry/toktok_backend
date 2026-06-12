@@ -3,6 +3,7 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const { uploadFile, delFile } = require("../../middlewares/uploadFile.js");
 const jwt = require("jsonwebtoken");
+const { generToken } = require("../../middlewares/generateToken");
 
 require("dotenv").config();
 
@@ -26,15 +27,6 @@ const validatCreation = (error, body) => {
     errors: errors,
     message: mainMsg,
   };
-};
-
-//Generating Token
-const maxAge = 60 * 60 * 24;
-
-const generToken = (data) => {
-  return jwt.sign({ data }, "Above App", {
-    expiresIn: maxAge,
-  });
 };
 
 // Create Item
