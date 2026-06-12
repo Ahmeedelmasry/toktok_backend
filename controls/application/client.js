@@ -50,7 +50,7 @@ const signUp = async (req, res) => {
 
     if (req.files && req.files.file) {
       filepath = await uploadFile(req, res, "avatars");
-      body.avatar = `${process.env.DOMAIN}/${filepath}`;
+      body.avatar = filepath;
     }
     const getLastRecord = await ClientSchema.find({}).sort({ order: -1 });
 
@@ -139,7 +139,7 @@ const updateItem = async (req, res) => {
 
     if (req.files && req.files.file) {
       filepath = await uploadFile(req, res, "avatars");
-      body.avatar = `${process.env.DOMAIN}/${filepath}`;
+      body.avatar = filepath;
     }
 
     await ClientSchema.updateOne({ _id: req.params.id }, body);

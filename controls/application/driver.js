@@ -51,7 +51,7 @@ const signUp = async (req, res) => {
 
     if (req.files && req.files.file) {
       filepath = await uploadFile(req, res, "avatars");
-      body.avatar = `${process.env.DOMAIN}/${filepath}`;
+      body.avatar = filepath;
     }
     const getLastRecord = await DriverSchema.find({}).sort({ order: -1 });
 
@@ -141,7 +141,7 @@ const updateItem = async (req, res) => {
 
     if (req.files && req.files.file) {
       filepath = await uploadFile(req, res, "avatars");
-      body.avatar = `${process.env.DOMAIN}/${filepath}`;
+      body.avatar = filepath;
     }
 
     await DriverSchema.updateOne({ _id: req.params.id }, body);
